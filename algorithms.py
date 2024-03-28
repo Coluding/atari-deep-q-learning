@@ -10,6 +10,7 @@ import logging
 from datetime import datetime
 from agent import *
 import gc
+from utils import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -148,11 +149,15 @@ class DQLAlgorithms:
         return loss.item()
 
     def train_agent(self, num_episodes: int):
+        best_loss = 500
         for episode in tqdm(range(num_episodes)):
             loss, reward, num_steps = self.play_one()
             logging.info(f"Episode {episode} completed with loss {loss}, reward {reward}, and num steps {num_steps}")
             print(f"Episode {episode} completed with loss {loss}, reward {reward}, and num steps {num_steps}")
 
+            if loss < best_loss:
+                best_loss = loss
+                self.save_state("best_model.pth")
         return self.tracker_dict
 
     def save_state(self, path: str):
@@ -179,7 +184,7 @@ if __name__ == "__main__":
     #dql.fill_experience_replay_buffer(10000)
     experience_replay_buffer.batch_size = 16
     #experience_replay_buffer.save_buffer("./replay_10000.bf")
-
+    #env.play_with_q_model(q_model, 1)
     while True:
         try:
             if os.path.exists("model_10000.pth"):
